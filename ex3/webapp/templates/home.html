@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block container %}
+  <h1>Welcom to the Product Home</h1>
+  <a id="catalog_link" href="{{ url_for('product.products') }}">Click here to see the product</a>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      $.getJSON("/home", function(data) {
+        $('#catalog_link').append('<span class="badge">' + data.count + '</span>');
+      });
+    });
+  </script>
+{% endblock %}
+
