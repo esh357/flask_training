@@ -1,4 +1,6 @@
 import os
+
+from flask_script import Manager, Server
 import webapp
 from webapp import app
 from webapp.utils import get_configurations
@@ -11,4 +13,9 @@ if __name__ == "__main__":
     debug = config['DEFAULT']['DEBUG']
     app.env = os.environ.get("ENVIRONMENT", config['DEFAULT']['ENVIRONMENT'])
 
-    app.run(host, port, debug=debug)
+    manager = Manager(app)
+    server = Server(host=host, port=port,
+                    use_debugger=debug, use_reloader=True)
+    manager.add_command("runserver", server)
+
+    manager.run()
