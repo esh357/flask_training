@@ -12,7 +12,8 @@ hello = Blueprint('hello', __name__)
 @hello.route('/hello')
 def hello_world():
     user = request.args.get('user', 'Rahul')
-    return render_template('index.html', user=user)
+    image = "https://picsum.photos/id/237/200/300"
+    return render_template('index.html', user=user, external_image=image)
 
 
 @hello.route('/show/<key>')

@@ -6,7 +6,7 @@ from flask import (request, jsonify, Blueprint, render_template, flash,
 
 from webapp import db
 from webapp.product.models import Product, Category
-from webapp.product.forms import ProductForm
+from webapp.product.forms import ProductForm, CategoryForm
 
 
 product = Blueprint('product', __name__)
@@ -71,7 +71,7 @@ def get_product(id):
 @product.route('/products')
 @product.route('/products/<int:page>')
 def products(page=1):
-    products = Product.query.paginate(page, 10, False).items
+    products = Product.query.paginate(page, 2, False).items
     return render_template('products.html', products=products)
 
 
@@ -97,13 +97,22 @@ def create_product():
     return render_template('product-create.html', form=form)
 
 
-@product.route('/category-create', methods=['POST', ])
+@product.route('/category-create', methods=['POST', 'GET'])
 def create_category():
-    name = request.form.get('name')
-    category = Category(name)
-    db.session.add(category)
-    db.session.commit()
-    return render_template('category.html', category=category)
+    form = CategoryForm(csrf_enabled=False)
+
+    if form.validate_on_submit():
+        name = form.name.data
+        categories = Category.query.filter(Category.name == name).first()
+        if categories:
+            flash("Category {0} already exists.".format(name), "danger")
+            return redirect(url_for("product.create_category"))
+        category = Category(name)
+        db.session.add(category)
+        db.session.commit()
+        flash("Category {0} is added successfully", "success")
+        redirect(url_for("product.category", id=category.id))
+    return render_template('category-create.html', form=form)
 
 
 @product.route('/category/<id>')
@@ -123,16 +132,19 @@ def categories():
 def product_search(page=1):
     name = request.args.get('name')
     price = request.args.get('price')
-    company = request.args.get('company')
+    # company = request.args.get('company')
     category = request.args.get('category')
     products = Product.query
     if name:
+        # SELECT * FROM product WHERE name like "%iPhone%"
         products = products.filter(Product.name.like('%' + name + '%'))
     if price:
         products = products.filter(Product.price == price)
-    if company:
-        products = products.filter(Product.company.like('%' + company + '%'))
+    # if company:
+    #     products = products.filter(Product.company.like('%' + company + '%'))
     if category:
+        # SELECT * FROM product INNER JOIN category ON category.id = product.category_id 
+        # WHERE category.name like "%Phone%"
         products = products.join(Category).filter(
             Category.name.like('%' + category + '%'))
     return render_template('products.html', products=products.paginate(page, 10).items)

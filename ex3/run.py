@@ -9,5 +9,6 @@ if __name__ == "__main__":
     port = config['DEFAULT']['PORT']
     debug = config['DEFAULT']['DEBUG']
     app.env = os.environ.get("ENVIRONMENT", config['DEFAULT']['ENVIRONMENT'])
+    app.secret_key = config['DEFAULT']['SECRET_KEY']
 
     app.run(host, port, debug=debug)

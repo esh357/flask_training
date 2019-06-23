@@ -9,3 +9,7 @@ class ProductForm(FlaskForm):
     price = DecimalField('Price', validators=[InputRequired(),
                                               NumberRange(min=Decimal('0.0'))])
     category = SelectField('Category', coerce=int, validators=[InputRequired()])
+
+
+class CategoryForm(FlaskForm):
+    name = TextField('Name', validators=[InputRequired()])

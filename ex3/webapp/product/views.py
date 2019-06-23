@@ -1,4 +1,5 @@
 from functools import wraps
+import ccy
 
 from sqlalchemy.orm.util import join
 from flask import (request, jsonify, Blueprint, render_template, flash,
@@ -87,7 +88,7 @@ def create_product():
         db.session.add(product)
         db.session.commit()
         flash('The product {0} has been created'.format(name), 'success')
-        return redirect(url_for('catalog.product', id=product.id))
+        return redirect(url_for('product.get_product', id=product.id))
     return render_template('product-create.html')
 
 

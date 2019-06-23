@@ -24,6 +24,7 @@ def format_currency_filter(amount):
 
 @product_blueprint.route('/')
 @product_blueprint.route('/home')
+# @product_blueprint.route('/home_test')
 def home():
     timestamp = datetime.datetime.now()
     return render_template('home.html', products=PRODUCTS, timestamp=timestamp)

@@ -6,7 +6,7 @@
     <div class"well">
       {% for product in category.products %}
         <h3>
-          <a href="{{ url_for('product.product', id=product.id) }}">{{ product.name }}</a>
+          <a href="{{ url_for('product.get_product', id=product.id) }}">{{ product.name }}</a>
           <small>$ {{ product.price }}</small>
         </h3>
       {% endfor %}
