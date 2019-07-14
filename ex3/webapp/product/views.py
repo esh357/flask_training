@@ -92,13 +92,21 @@ def create_product():
     return render_template('product-create.html')
 
 
-@product.route('/category-create', methods=['POST', ])
+@product.route('/category-create', methods=['POST', 'GET'])
 def create_category():
-    name = request.form.get('name')
-    category = Category(name)
-    db.session.add(category)
-    db.session.commit()
-    return render_template('category.html', category=category)
+    if request.method == "POST":
+        name = request.form.get('name')
+        category = Category.query.filter(Category.name==name).first()
+        if not category:
+            category = Category(name)
+            db.session.add(category)
+            db.session.commit()
+            flash("Category {0} has been created.".format(name), 'success')
+        else:
+            flash("The category {0} already exists.".format(name), 'error')
+        return redirect(url_for('product.category', id=category.id))
+    return render_template('category-create.html')
+
 
 
 @product.route('/category/<id>')
@@ -114,7 +122,7 @@ def categories():
 
 
 @product.route('/product-search')
-@product.route('/product-serch/<int:page>')
+@product.route('/product-search/<int:page>')
 def product_search(page=1):
     name = request.args.get('name')
     price = request.args.get('price')

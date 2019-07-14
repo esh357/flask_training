@@ -18,12 +18,12 @@ if __name__ == "__main__":
                     use_debugger=debug, use_reloader=True)
     manager.add_command("runserver", server)
 
-    # host_1 = config['PRODUCTION']['HOST']
-    # port_1 = config['PRODUCTION']['PORT']
-    # debug_1 = True if config['PRODUCTION']['DEBUG'] == "True" else False
-    # app.env = os.environ.get("ENVIRONMENT", config['PRODUCTION']['ENVIRONMENT'])
-    # server_1 = Server(host=host_1, port=port_1,
-    #                 use_debugger=debug_1, use_reloader=True)
-    # manager.add_command("start", server_1)
+    host_1 = config['PRODUCTION']['HOST']
+    port_1 = config['PRODUCTION']['PORT']
+    debug_1 = True if config['PRODUCTION']['DEBUG'] == "True" else False
+    app.env = os.environ.get("ENVIRONMENT", config['PRODUCTION']['ENVIRONMENT'])
+    server_1 = Server(host=host_1, port=port_1,
+                    use_debugger=debug_1, use_reloader=True)
+    manager.add_command("start", server_1)
 
     manager.run()

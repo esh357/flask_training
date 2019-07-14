@@ -11,6 +11,7 @@ if __name__ == "__main__":
     host = config['DEFAULT']['HOST']
     port = config['DEFAULT']['PORT']
     debug = config['DEFAULT']['DEBUG']
+    app.secret_key = config['DEFAULT']['SECRET_KEY']
     app.env = os.environ.get("ENVIRONMENT", config['DEFAULT']['ENVIRONMENT'])
 
     manager = Manager(app)

@@ -2,7 +2,7 @@ DB_USER = "root"
 DB_PASSWORD = "root"
 DB_HOST = "localhost"
 DB_PORT = 3306
-DB_NAME = "testprog"
+DB_NAME = "test_training"
 
 DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{db}'
 

@@ -71,7 +71,7 @@ def get_product(id):
 @product.route('/products')
 @product.route('/products/<int:page>')
 def products(page=1):
-    products = Product.query.paginate(page, 2, False).items
+    products = Product.query.paginate(page, 10, False).items
     return render_template('products.html', products=products)
 
 
@@ -87,6 +87,8 @@ def create_product():
         price = form.price.data
         category_name = form.category.data
         category = Category.query.get_or_404(form.category.data)
+        if not category:
+            category = Category(category_name)
         product = Product(name, price, category)
         db.session.add(product)
         db.session.commit()
@@ -110,7 +112,7 @@ def create_category():
         category = Category(name)
         db.session.add(category)
         db.session.commit()
-        flash("Category {0} is added successfully", "success")
+        flash("Category {0} is added successfully".format(name), "success")
         redirect(url_for("product.category", id=category.id))
     return render_template('category-create.html', form=form)
 
