@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import render_template
 from webapp import app
 
 
@@ -21,10 +21,6 @@ def hello_name(name=None):
 def hello_number(number=0):
     return "Hello number: {number}".format(number=number)
 
-@app.route('/hello/<float:number>')
-def hello_float_number(number=0.0):
-    return "Hello float number: {number}".format(number=number)
-
 
 @app.route('/html')
 @app.route('/html/<user>')
@@ -36,19 +32,15 @@ def html(user=None):
                 <title>Flask Framework Training</title>
             </head>
             <body>
-                <h4>Hello %s!</h4>
+                <h1>Hello %s!</h1>
                 <p>Welcome to the world of Flask!</p>
             </body>
         </html>
     ''' % user
 
 
-@app.route('/<user>', methods=['GET', 'POST'])
-def user_index(user=None):
+@app.route('/<user>')
+def user_index(user="None"):
     user = user or "srahul07"
     external_image = "https://picsum.photos/id/237/200/300"
-    said = 'said nothing yet!'
-    if request.method == 'POST':
-        said = request.form.get('said_it')
-    return render_template("index.html", user=user,
-                           external_image=external_image, said=said)
+    return render_template("index.html", user=user, external_image=external_image)

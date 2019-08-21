@@ -1,7 +1,6 @@
 import ccy
 import datetime
-from werkzeug import abort
-from flask import render_template
+from flask import render_template, abort
 from flask import Blueprint
 from flask import request
 
