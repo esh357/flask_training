@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, request
 from webapp import app
 
 
@@ -43,8 +43,12 @@ def html(user=None):
     ''' % user
 
 
-@app.route('/<user>')
+@app.route('/<user>', methods=['GET', 'POST'])
 def user_index(user=None):
     user = user or "srahul07"
     external_image = "https://picsum.photos/id/237/200/300"
-    return render_template("index.html", user=user, external_image=external_image)
+    said = 'said nothing yet!'
+    if request.method == 'POST':
+        said = request.form.get('said_it')
+    return render_template("index.html", user=user,
+                           external_image=external_image, said=said)

@@ -14,5 +14,15 @@
     <div>
       <img src="{{ external_image }}">
     </div>
+    <br/>
+    <hr/>
+    <div align="center">
+        <form action="/{{ user }}" method="post">
+            <textarea name="said_it" placeholder="Say Something"></textarea>
+            <button type="submit">Say it!</button>
+        </form>
+        <pre> I said this: {{ said }}</pre>
+    </div>
+    <hr/>
   </body>
 </html>

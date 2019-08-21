@@ -13,8 +13,7 @@ def get_file_content(filename):
     return file.read()
 
 def get_configurations(filename):
-    config_directory = "config"
-    filepath = get_file_path(os.path.join(config_directory, filename))
+    filepath = get_file_path(filename)
     config = configparser.ConfigParser()
     config.read(filepath)
     return config
