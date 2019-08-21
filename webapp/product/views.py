@@ -1,5 +1,4 @@
 from functools import wraps
-import ccy
 
 from sqlalchemy.orm.util import join
 from flask import (request, jsonify, Blueprint, render_template, flash,
@@ -7,6 +6,7 @@ from flask import (request, jsonify, Blueprint, render_template, flash,
 
 from webapp import db
 from webapp.product.models import Product, Category
+from webapp.product.forms import ProductForm, CategoryForm
 
 
 product = Blueprint('product', __name__)
@@ -77,11 +77,16 @@ def products(page=1):
 
 @product.route('/product-create', methods=['GET', 'POST'])
 def create_product():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        price = request.form.get('price')
-        category_name = request.form.get('category')
-        category = Category.query.filter_by(name=category_name).first()
+    form = ProductForm(csrf_enabled=False)
+
+    categories = [(c.id, c.name) for c in Category.query.all()]
+    form.category.choices = categories
+
+    if request.method == 'POST' and form.validate():
+        name = form.name.data
+        price = form.price.data
+        category_name = form.category.data
+        category = Category.query.get_or_404(form.category.data)
         if not category:
             category = Category(category_name)
         product = Product(name, price, category)
@@ -89,24 +94,27 @@ def create_product():
         db.session.commit()
         flash('The product {0} has been created'.format(name), 'success')
         return redirect(url_for('product.get_product', id=product.id))
-    return render_template('product-create.html')
+    if form.errors:
+        flash(form.errors, 'danger')
+    return render_template('product-create.html', form=form)
 
 
 @product.route('/category-create', methods=['POST', 'GET'])
 def create_category():
-    if request.method == "POST":
-        name = request.form.get('name')
-        category = Category.query.filter(Category.name==name).first()
-        if not category:
-            category = Category(name)
-            db.session.add(category)
-            db.session.commit()
-            flash("Category {0} has been created.".format(name), 'success')
-        else:
-            flash("The category {0} already exists.".format(name), 'error')
-        return redirect(url_for('product.category', id=category.id))
-    return render_template('category-create.html')
+    form = CategoryForm(csrf_enabled=False)
 
+    if form.validate_on_submit():
+        name = form.name.data
+        categories = Category.query.filter(Category.name == name).first()
+        if categories:
+            flash("Category {0} already exists.".format(name), "danger")
+            return redirect(url_for("product.create_category"))
+        category = Category(name)
+        db.session.add(category)
+        db.session.commit()
+        flash("Category {0} is added successfully".format(name), "success")
+        redirect(url_for("product.category", id=category.id))
+    return render_template('category-create.html', form=form)
 
 
 @product.route('/category/<id>')
@@ -122,20 +130,23 @@ def categories():
 
 
 @product.route('/product-search')
-@product.route('/product-search/<int:page>')
+@product.route('/product-serch/<int:page>')
 def product_search(page=1):
     name = request.args.get('name')
     price = request.args.get('price')
-    company = request.args.get('company')
+    # company = request.args.get('company')
     category = request.args.get('category')
     products = Product.query
     if name:
+        # SELECT * FROM product WHERE name like "%iPhone%"
         products = products.filter(Product.name.like('%' + name + '%'))
     if price:
         products = products.filter(Product.price == price)
-    if company:
-        products = products.filter(Product.company.like('%' + company + '%'))
+    # if company:
+    #     products = products.filter(Product.company.like('%' + company + '%'))
     if category:
+        # SELECT * FROM product INNER JOIN category ON category.id = product.category_id 
+        # WHERE category.name like "%Phone%"
         products = products.join(Category).filter(
             Category.name.like('%' + category + '%'))
     return render_template('products.html', products=products.paginate(page, 10).items)
