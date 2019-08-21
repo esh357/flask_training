@@ -1,5 +1,6 @@
 *.pyc
-
+.idea/
 venv
 __pycache__
 .sonarlint
+.DS_Store
