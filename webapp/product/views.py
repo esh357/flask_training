@@ -88,8 +88,10 @@ def home():
         })
     return render_template('home.html')
     '''
-    products = Product.query.all()
-    return {'count': len(products)}
+    products = Product.query.count()
+    categories = Category.query.count()
+
+    return {'products': products, 'categories': categories}
 
 
 @product.route('/product/<string(minlength=2, maxlength=3):key>')

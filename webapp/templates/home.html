@@ -2,16 +2,17 @@
 
 {% block container %}
   <h1>Welcom to the Product Home</h1>
-    <a href="{{ url_for('product.categories') }}">Click here to see the categories</a>
+    <a id="categories" href="{{ url_for('product.categories') }}">Click here to see the categories</a>
     <br/>
-    <a id="catalog_link" href="{{ url_for('product.products') }}">Click here to see the product</a>
+    <a id="products" href="{{ url_for('product.products') }}">Click here to see the product</a>
 {% endblock %}
 
 {% block scripts %}
   <script>
     $(document).ready(function() {
       $.getJSON("/home", function(data) {
-        $('#catalog_link').append('<span class="badge">' + data.count + '</span>');
+        $('#products').append('<span class="badge">' + data.products + '</span>');
+        $('#categories').append('<span class="badge">' + data.categories + '</span>');
       });
     });
   </script>
