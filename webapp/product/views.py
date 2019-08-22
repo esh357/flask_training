@@ -31,9 +31,9 @@ def decorator_cache(url):
                                                    cached_since) < 30:
                 print("[*] Using Redis Cache", cache_key)
                 return redis_client.get(cache_key)
-            print("Cache status:")
-            print(f"{cache_key}={cached_object}")
-            print(f"{cached_since_key}={cached_since}" )
+            #print("Cache status:")
+            #print(f"{cache_key}={cached_object}")
+            #print(f"{cached_since_key}={cached_since}" )
             result = f(*args, **kwargs)
             print("[*] Saving to Redis Cache", cache_key)
             redis_client.set(cache_key, result)
