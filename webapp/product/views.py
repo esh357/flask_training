@@ -1,15 +1,46 @@
+import time
 from functools import wraps
 
 from sqlalchemy.orm.util import join
 from flask import (request, jsonify, Blueprint, render_template, flash,
                    redirect, url_for)
 
-from webapp import db
+from webapp import db, redis_client
 from webapp.product.models import Product, Category
 from webapp.product.forms import ProductForm, CategoryForm
 
 
 product = Blueprint('product', __name__)
+
+
+def decorator_cache(url):
+    def top_level(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            key = '/'
+            if args:
+                key += '/'.join(str(u) for u in args)
+            if kwargs:
+                key += '/'.join(f'{k}={v}' for k,v in kwargs.items())
+            cache_key = url + key
+            cached_since_key = url + key + '/time'
+            cached_object = redis_client.get(cache_key)
+            cached_since = (int(redis_client.get(cached_since_key)) if
+                                redis_client.get(cached_since_key) else 0)
+            if cached_object and cached_since and (time.time() -
+                                                   cached_since) < 30:
+                print("[*] Using Redis Cache", cache_key)
+                return redis_client.get(cache_key)
+            print("Cache status:")
+            print(f"{cache_key}={cached_object}")
+            print(f"{cached_since_key}={cached_since}" )
+            result = f(*args, **kwargs)
+            print("[*] Saving to Redis Cache", cache_key)
+            redis_client.set(cache_key, result)
+            redis_client.set(cached_since_key, int(time.time()))
+            return result
+        return wrapper
+    return top_level
 
 
 @product.app_template_filter('full_name')
@@ -63,6 +94,7 @@ def home():
 
 @product.route('/product/<string(minlength=2, maxlength=3):key>')
 @product.route('/product/<id>')
+@decorator_cache('/product')
 def get_product(id):
     product = Product.query.get_or_404(id)
     return render_template('product.html', product=product)
@@ -70,6 +102,7 @@ def get_product(id):
 
 @product.route('/products')
 @product.route('/products/<int:page>')
+@decorator_cache('/products')
 def products(page=1):
     products = Product.query.paginate(page, 10, False).items
     return render_template('products.html', products=products)
@@ -118,12 +151,14 @@ def create_category():
 
 
 @product.route('/category/<id>')
+@decorator_cache('/category')
 def category(id):
     category = Category.query.get_or_404(id)
     return render_template('category.html', category=category)
 
 
 @product.route('/categories')
+@decorator_cache('/categories')
 def categories():
     categories = Category.query.all()
     return render_template('categories.html', categories=categories)
@@ -150,3 +185,5 @@ def product_search(page=1):
         products = products.join(Category).filter(
             Category.name.like('%' + category + '%'))
     return render_template('products.html', products=products.paginate(page, 10).items)
+
+
