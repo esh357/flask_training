@@ -1,5 +1,6 @@
 import os
 
+from celery import Celery
 from flask import Flask
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
@@ -22,7 +23,8 @@ app = create_app()
 # Initialize app with database configurations
 db = SQLAlchemy(app)
 redis_client = FlaskRedis(app, strict=True)
-print('GEtting from redis', redis_client.get('test'))
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 # import product blueprint
 from webapp.product.views import product as product_blueprint

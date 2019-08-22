@@ -8,3 +8,8 @@ From this point onwards it gets only better
 * Jinja & Macro
 * Bootstrap
 * Basic Model View Controller
+
+
+#### Celery Command
+---
+`celery worker -A backend.emailer.celery --loglevel=info`

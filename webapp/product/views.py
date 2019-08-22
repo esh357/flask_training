@@ -99,6 +99,7 @@ def home():
 @decorator_cache('/product')
 def get_product(id):
     product = Product.query.get_or_404(id)
+
     return render_template('product.html', product=product)
 
 
@@ -112,8 +113,9 @@ def products(page=1):
 
 @product.route('/product-create', methods=['GET', 'POST'])
 def create_product():
-    form = ProductForm(csrf_enabled=False)
+    from backend.emailer import notify_production_creation
 
+    form = ProductForm(csrf_enabled=False)
     categories = [(c.id, c.name) for c in Category.query.all()]
     form.category.choices = categories
 
@@ -128,6 +130,9 @@ def create_product():
         db.session.add(product)
         db.session.commit()
         flash('The product {0} has been created'.format(name), 'success')
+
+        notify_production_creation.apply_async(args=[name,
+                                           category_name])
         return redirect(url_for('product.get_product', id=product.id))
     if form.errors:
         flash(form.errors, 'danger')
@@ -136,8 +141,9 @@ def create_product():
 
 @product.route('/category-create', methods=['POST', 'GET'])
 def create_category():
-    form = CategoryForm(csrf_enabled=False)
+    from backend.emailer import notify_category_creation
 
+    form = CategoryForm(csrf_enabled=False)
     if form.validate_on_submit():
         name = form.name.data
         categories = Category.query.filter(Category.name == name).first()
@@ -148,6 +154,7 @@ def create_category():
         db.session.add(category)
         db.session.commit()
         flash("Category {0} is added successfully".format(name), "success")
+        notify_category_creation.apply_async(args=[name])
         redirect(url_for("product.category", id=category.id))
     return render_template('category-create.html', form=form)
 
