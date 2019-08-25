@@ -1,6 +1,7 @@
 import time
 from functools import wraps
 
+import ccy
 from sqlalchemy.orm.util import join
 from flask import (request, jsonify, Blueprint, render_template, flash,
                    redirect, url_for)
@@ -97,7 +98,7 @@ def get_product(id):
 
 @product.route('/products')
 @product.route('/products/<int:page>')
-@decorator_cache('/products')
+#@decorator_cache('/products')
 def products(page=1):
     products = Product.query.paginate(page, 10, False).items
     return render_template('products.html', products=products)

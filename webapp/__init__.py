@@ -2,6 +2,7 @@ import os
 
 from celery import Celery
 from flask import Flask
+from flask_login import LoginManager
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
 
@@ -25,10 +26,11 @@ db = SQLAlchemy(app)
 redis_client = FlaskRedis(app, strict=True)
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-# import product blueprint
 from webapp.product.views import product as product_blueprint
-# Register a blue print
 app.register_blueprint(product_blueprint)
-# Create all required tables
+
+from webapp.auth.views import *
 db.create_all()

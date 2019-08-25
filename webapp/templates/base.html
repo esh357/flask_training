@@ -29,14 +29,33 @@
             <li class="nav-item active"><a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a></li>
         </ul>
     </div>
-        <form class="form-inline my-2 my-lg-0">
-            {{ render_field('username', 'form-control mr-sm-2') }}
-            {{ render_field('password', 'form-control mr-sm-2', type='password') }}
+        {% if current_user.is_authenticated %}
+            <form class="form-inline my-2 my-lg-0" method="POST" action="/logout" >
+                <span class="btn btn-outline-primary">{{ current_user.name }}</span>
+                &nbsp;
+                <button class="btn btn-danger my-2 my-sm-0" type="submit">Logout</button>
+            </form>
+        {% else %}
+        <form class="form-inline my-2 my-lg-0" method="POST" action="/login" role="login_form">
+            {{ login_form.name(class_="form-control mr-sm-2") }}
+            {{ login_form.password(class_="form-control mr-sm-2") }}
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
         </form>
+        {% endif %}
     </nav>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <div class="container-fluid" style="height:100%;">
+        <br/>
+        <br/>
       {% block container %}{% endblock %}
     </div>
 
@@ -44,6 +63,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    {% block scripts %}{% endblock %}
 
   </body>
 </html>
