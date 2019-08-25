@@ -1,5 +1,6 @@
 import datetime
-from webapp import db
+from webapp import db, admin
+from flask_admin.contrib.sqla import ModelView
 
 
 class Product(db.Model):
@@ -17,7 +18,7 @@ class Product(db.Model):
         self.category = category
 
     def __repr__(self):
-        return '<Product %r>' % self.id
+        return f"Product: {self.name}"
 
 
 class Category(db.Model):
@@ -28,5 +29,7 @@ class Category(db.Model):
         self.name = name
 
     def __repr__(self):
-        return '<Category %d>' % self.id
+        return f"Category: {self.name}"
 
+admin.add_view(ModelView(Product, db.session, category="Products"))
+admin.add_view(ModelView(Category, db.session, category="Products"))

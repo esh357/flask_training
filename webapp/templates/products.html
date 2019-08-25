@@ -3,9 +3,6 @@
 
 {% block container %}
 <div class="container-fluid">
-      <div class="float-right">
-          <button class="btn btn-outline-success" type="button" onclick="javascript:window.location='/product-create';">Add New</button>
-      </div>
 
   <div class="row">
   {% for product in products %}
@@ -17,7 +14,6 @@
                 {{ product['name'] }}
             </h5>
             <p style="color:red;"><small>{{ product['price']|format_currency }}</small></p>
-            <!--a href="{{ url_for('product.get_product', key=product.id) }}">View</a-->
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal-{{ product.id }}">
                 View Details
             </button>

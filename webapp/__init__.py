@@ -2,10 +2,11 @@ import os
 
 from celery import Celery
 from flask import Flask
+from flask_admin import Admin
+from flask_admin.menu import MenuLink
 from flask_login import LoginManager
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
-
 from webapp.utils import get_file_path
 
 
@@ -28,9 +29,9 @@ celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-from webapp.product.views import product as product_blueprint
-app.register_blueprint(product_blueprint)
+admin = Admin(app, name='Product Mgmt', template_mode='bootstrap3')
+admin.add_link(MenuLink(name='Main', category='', url="/"))
 
 from webapp.auth.views import *
+from webapp.product.views import *
 db.create_all()

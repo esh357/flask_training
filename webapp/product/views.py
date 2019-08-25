@@ -1,17 +1,12 @@
-import time
 from functools import wraps
 
 import ccy
-from sqlalchemy.orm.util import join
-from flask import (request, jsonify, Blueprint, render_template, flash,
-                   redirect, url_for)
+from flask import (request, jsonify, render_template, flash,
+                   redirect, url_for, app)
 
-from webapp import db, redis_client
-from webapp.product.models import Product, Category
+from webapp import db, redis_client, app
 from webapp.product.forms import ProductForm, CategoryForm
-
-
-product = Blueprint('product', __name__)
+from webapp.product.models import Product, Category
 
 
 def decorator_cache(url):
@@ -36,12 +31,12 @@ def decorator_cache(url):
     return top_level
 
 
-@product.app_template_filter('full_name')
+@app.template_filter('full_name')
 def full_name_filter(product):
     return '{0} / {1}'.format(product['category'], product['name'])
 
 
-@product.app_template_filter('format_currency')
+@app.template_filter('format_currency')
 def format_currency_filter(amount):
     currency_code = ccy.countryccy(request.accept_languages.best[-2:])
     return '{0} {1}'.format(currency_code, amount)
@@ -64,47 +59,37 @@ def template_or_json(template=None):
     return decorated
 
 
-@product.errorhandler(404)
+@app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
 
-@product.route('/')
-@product.route('/home')
+@app.route('/')
+@app.route('/home')
 @template_or_json('home.html')
 def home():
-    '''
-    if request.is_xhr:
-        products = Product.query.all()
-        return jsonify({
-            'count': len(products)
-        })
-    return render_template('home.html')
-    '''
     products = Product.query.count()
     categories = Category.query.count()
-
     return {'products': products, 'categories': categories}
 
 
-@product.route('/product/<string(minlength=2, maxlength=3):key>')
-@product.route('/product/<id>')
+@app.route('/product/<string(minlength=2, maxlength=3):key>')
+@app.route('/product/<id>')
 @decorator_cache('/product')
 def get_product(id):
     product = Product.query.get_or_404(id)
+    return render_template('product.html', product=product, nav='products')
 
-    return render_template('product.html', product=product)
 
-
-@product.route('/products')
-@product.route('/products/<int:page>')
+@app.route('/products')
+@app.route('/products/<int:page>')
 #@decorator_cache('/products')
 def products(page=1):
     products = Product.query.paginate(page, 10, False).items
-    return render_template('products.html', products=products)
+    return render_template('products.html', products=products, nav='products')
 
 
-@product.route('/product-create', methods=['GET', 'POST'])
+@app.route('/product-create', methods=['GET', 'POST'])
 def create_product():
     from backend.emailer import notify_production_creation
 
@@ -129,10 +114,10 @@ def create_product():
         return redirect(url_for('product.get_product', id=product.id))
     if form.errors:
         flash(form.errors, 'danger')
-    return render_template('product-create.html', form=form)
+    return render_template('product-create.html', form=form, nav='products')
 
 
-@product.route('/category-create', methods=['POST', 'GET'])
+@app.route('/category-create', methods=['POST', 'GET'])
 def create_category():
     from backend.emailer import notify_category_creation
 
@@ -149,25 +134,25 @@ def create_category():
         flash("Category {0} is added successfully".format(name), "success")
         notify_category_creation.apply_async(args=[name])
         redirect(url_for("product.category", id=category.id))
-    return render_template('category-create.html', form=form)
+    return render_template('category-create.html', form=form, nav='categories')
 
 
-@product.route('/category/<id>')
+@app.route('/category/<id>')
 @decorator_cache('/category')
 def category(id):
     category = Category.query.get_or_404(id)
-    return render_template('category.html', category=category)
+    return render_template('category.html', category=category, nav='categories')
 
 
-@product.route('/categories')
+@app.route('/categories')
 @decorator_cache('/categories')
 def categories():
     categories = Category.query.all()
-    return render_template('categories.html', categories=categories)
+    return render_template('categories.html', categories=categories, nav='categories')
 
 
-@product.route('/product-search')
-@product.route('/product-serch/<int:page>')
+@app.route('/product-search')
+@app.route('/product-serch/<int:page>')
 def product_search(page=1):
     name = request.args.get('name')
     price = request.args.get('price')
@@ -186,6 +171,7 @@ def product_search(page=1):
         # WHERE category.name like "%Phone%"
         products = products.join(Category).filter(
             Category.name.like('%' + category + '%'))
-    return render_template('products.html', products=products.paginate(page, 10).items)
+    return render_template('products.html', products=products.paginate(page,
+                                                                       10).items, nav='products')
 
 

@@ -2,7 +2,7 @@
 
 {% block container %}
   <div class="top-pad">
-    <form class="form-horizontal" method="POST" action="{{ url_for('product.create_product') }}" role="form">
+    <form class="form-horizontal" method="POST" action="/product-create" role="form">
       <div class="form-group">
         {{ form.name.label }} : {{ form.name() }}
       </div>
