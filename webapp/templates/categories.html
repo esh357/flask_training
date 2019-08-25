@@ -2,11 +2,13 @@
 
 {% block container %}
   <div class="top-pad">
-    <button type="button" onclick="javascript:window.location='/category-create';">Add New</button>
+      <a class="btn btn-outline-danger" href="{{ url_for('product.create_category') }}">Add new</a>&nbsp;
     <br/>
     {% for category in categories %}
-      <a href="{{ url_for('product.category', id=category.id) }}">{{ category.name }}</a>
+      <a href="{{ url_for('product.category', id=category.id) }}">{{ category.name }}</a>&nbsp;
+        <a class="btn btn-outline-danger" href="{{ url_for('product.update_category', id=category.id) }}">Update</a>&nbsp;
       <br>
+        <br>
     {% endfor %}
   </div>
 {% endblock %}

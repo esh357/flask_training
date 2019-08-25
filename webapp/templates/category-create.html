@@ -2,7 +2,11 @@
 
 {% block container %}
 <div class="top-pad">
-    <form class="form-horizontal" method="POST" action="{{ url_for('product.create_category') }}" role="form">
+    {%  if update_type %}
+        <form class="form-horizontal" method="POST" action="{{ url_for('product.update_category', id=category_id) }}" role="form">
+    {% else %}
+        <form class="form-horizontal" method="POST" action="{{ url_for('product.create_category') }}" role="form">
+    {% endif %}
       <div class="form-group">
         {{ form.name.label }} : {{ form.name() }}
       </div>

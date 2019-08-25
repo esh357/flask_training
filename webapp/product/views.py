@@ -98,6 +98,25 @@ def create_product():
         flash(form.errors, 'danger')
     return render_template('product-create.html', form=form)
 
+@product.route('/category-update/<id>', methods=['POST', 'GET'])
+def update_category(id):
+
+    category = Category.query.filter(Category.id==id).first()
+    if not category:
+        return render_template('404.html'), 404
+
+    form = CategoryForm(csrf_enabled=False, name=category.name)
+
+    if form.validate_on_submit():
+        name = form.name.data
+        category.name = name
+        db.session.add(category)
+        db.session.commit()
+        flash("Category {0} is updated successfully".format(name), "success")
+        redirect(url_for("product.category", id=category.id))
+    return render_template('category-create.html', form=form,
+                           update_type=True, category_id=id)
+
 
 @product.route('/category-create', methods=['POST', 'GET'])
 def create_category():
@@ -114,7 +133,7 @@ def create_category():
         db.session.commit()
         flash("Category {0} is added successfully".format(name), "success")
         redirect(url_for("product.category", id=category.id))
-    return render_template('category-create.html', form=form)
+    return render_template('category-create.html', form=form, update_type=False)
 
 
 @product.route('/category/<id>')
