@@ -98,13 +98,10 @@ def create_product():
         flash(form.errors, 'danger')
     return render_template('product-create.html', form=form)
 
-@product.route('/category-update/<id>', methods=['POST', 'GET'])
+@product.route('/category-update/<int:id>', methods=['POST', 'GET'])
 def update_category(id):
 
-    category = Category.query.filter(Category.id==id).first()
-    if not category:
-        return render_template('404.html'), 404
-
+    category = Category.query.get_or_404(id)
     form = CategoryForm(csrf_enabled=False, name=category.name)
 
     if form.validate_on_submit():
