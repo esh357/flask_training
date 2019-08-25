@@ -1,26 +1,43 @@
-{% extends 'home.html' %}
+{% extends 'base.html' %}
+
 
 {% block container %}
-  <div class="top-pad">
-    <button type="button" onclick="javascript:window.location='/product-create';">Add New</button>
-    <br/>
-    {% for product in products %}
-      <div class="well">
-        <h2>
-          <a href="{{ url_for('product.get_product', id=product.id) }}">{{ product.name }}</a>
-          <small>$ {{ product.price }}</small>
-        </h2>
-      </div>
-    {% endfor %}
-    {% if products.has_prev %}
-      <a href="{{ url_for('product.products', page=products.prev_num) }}">{{ "<< Previous Page" }}</a>
-    {% else %}
-      {{ "<< Previous Page" }}
-    {% endif %}
-    {% if products.has_next %}
-      <a href="{{ url_for(product.preoducts, page=products.next_num) }}"></a>
-    {% else %}
-      {{ "Next Page >>"}}
-    {% endif %}
+<div class="container-fluid" style="top: 0px;">
+  <div class="row">
+      <div class="pull-right"></div>
   </div>
+
+  <div class="row">
+  {% for id, product in products.items() %}
+      <div class="col-sm-3">
+      <div class="card">
+          <rect width="100%" height="100%" fill="#868e96">
+              <img src="https://via.placeholder.com/300" class="card-img-top img-thumbnail" alt="...">
+          </rect>
+        <div class="card-body">
+            <h5 class="card-title">
+                {{ product['name'] }}
+            </h5>
+            <p style="color:red;"><small>{{ product['price']|format_currency }}</small></p>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <a href="{{ url_for('product.product', key=id) }}">View</a>
+        </div>
+      </div>
+      </div>
+  {% endfor %}
+  </div>
+</div>
 {% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function() {
+      $.getJSON("/home", function(data) {
+        $('#catalog_link').append('<span class="badge">' + data.count + '</span>');
+      });
+    });
+  </script>
+{% endblock %}
+
+
+
