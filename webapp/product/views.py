@@ -23,21 +23,13 @@ def decorator_cache(url):
             if kwargs:
                 key += '/'.join(f'{k}={v}' for k,v in kwargs.items())
             cache_key = url + key
-            cached_since_key = url + key + '/time'
             cached_object = redis_client.get(cache_key)
-            cached_since = (int(redis_client.get(cached_since_key)) if
-                                redis_client.get(cached_since_key) else 0)
-            if cached_object and cached_since and (time.time() -
-                                                   cached_since) < 30:
-                print("[*] Using Redis Cache", cache_key)
-                return redis_client.get(cache_key)
-            #print("Cache status:")
-            #print(f"{cache_key}={cached_object}")
-            #print(f"{cached_since_key}={cached_since}" )
+            if cached_object:
+                print("[*] Getting from Redis Cache", cache_key)
+                return cached_object
             result = f(*args, **kwargs)
             print("[*] Saving to Redis Cache", cache_key)
-            redis_client.set(cache_key, result)
-            redis_client.set(cached_since_key, int(time.time()))
+            redis_client.set(cache_key, result, 30)
             return result
         return wrapper
     return top_level
