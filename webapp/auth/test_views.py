@@ -10,10 +10,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'
 app.secret_key = 'testing'
 app.config['SESSION_TYPE'] = 'filesystem'
 
-ctx.push()
 
 class UserViewTest(unittest.TestCase):
 	def setUp(self):
+		ctx.push()
 		db.create_all()
 		role = Role(name='Test')
 		user1 = User(id=1, name='one', password='test', role=role)
@@ -42,6 +42,7 @@ class UserViewTest(unittest.TestCase):
 		db.session.rollback()
 		assert User.query.count() == 0
 		db.drop_all()
+		ctx.pop()
 
 
 if __name__ == '__main__':

@@ -10,7 +10,6 @@ from webapp.auth.models import User
 def load_user(user_id):
     return User.query.get_or_404(user_id)
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(csrf_enabled=False)
@@ -18,9 +17,11 @@ def login():
         user = User.query.filter(User.name==form.name.data).first()
         if not user or user.password != form.password.data:
             flash("Invalid username or password", category='danger')
+            session['stupid_user'] = True
             return redirect('/')
         print("Logging in user", user)
         login_user(user)
+        session['stupid_user'] = False
         flash('Logged in successfully.', category='success')
     return redirect('/')
 
@@ -28,11 +29,14 @@ def login():
 @app.route("/logout", methods=['POST'])
 def logout():
     logout_user()
+    session['stupid_user'] = True
     return redirect('/')
 
 
 @app.context_processor
 def inject_login_form():
+    data = {}
     if not current_user.is_authenticated:
-        return dict(login_form=LoginForm(csrf_enabled=False))
-    return {}
+        data['login_form'] = LoginForm(csrf_enabled=False)
+    data['session_stupid_user'] = session.get('stupid_user', None)
+    return data

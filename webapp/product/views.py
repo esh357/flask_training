@@ -82,10 +82,14 @@ def get_product(id):
 
 
 @app.route('/products')
-@app.route('/products/<int:page>')
-#@decorator_cache('/products')
-def products(page=1):
-    products = Product.query.paginate(page, 10, False).items
+def products():
+    page = int(request.args.get("page", 1))
+    size = int(request.args.get("size", 10))
+    format = request.args.get('format', None)
+    products = Product.query.paginate(page, size, False).items
+    if format=='json':
+        return jsonify([{'id': p.id, 'name': p.name, 'category_id':
+            p.category.id} for p in products])
     return render_template('products.html', products=products, nav='products')
 
 

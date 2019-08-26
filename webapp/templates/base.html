@@ -25,11 +25,13 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item {% if nav == 'products' %}active{% endif %}"><a class="nav-link" href="/products">Products <span class="sr-only">(current)</span></a></li>
+            <li class="nav-item {% if nav == 'products' %}active{% endif %}"><a class="nav-link" href="/products?page=1&size=2">Products <span class="sr-only">(current)</span></a></li>
             <li class="nav-item {% if nav == 'categories' %}active{% endif %} "><a class="nav-link" href="/categories">Categories </a></li>
             {% if current_user.role and current_user.role.name == 'admin' %}<li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li>{% endif %}
         </ul>
     </div>
+        {{  session_stupid_user }}
+        &nbsp;
         {% if current_user.is_authenticated %}
             <form class="form-inline my-2 my-lg-0" method="POST" action="/logout" >
                 <span class="btn btn-outline-primary">{{ current_user.name }}</span>

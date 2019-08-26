@@ -12,8 +12,7 @@ class User(db.Model, UserMixin):
     role = db.relationship('Role', backref=db.backref('users', lazy='dynamic'))
 
     def is_authenticated(self):
-        from flask import g
-        return g.authenticated
+        return True
 
     def is_active(self):
         return True
